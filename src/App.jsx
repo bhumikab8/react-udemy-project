@@ -1,35 +1,68 @@
-import "./App.css";
-import Card from "./components/Card.jsx";
-import Header from "./components/Header.jsx";
-import Hero from "./components/Hero.jsx";
-import { Button } from "./components/ui/button.tsx";
+import { useState } from 'react';
+import './App.css';
+import CustomerForm from './CustomerForm';
+import CustomerList from './CustomerList';
+import { ThemeProvider } from './components/ThemeToggler';
 
 function App() {
-  return (
-    <>
-      <Hero />
-      <Button variant="outline">Click me</Button>
-      <Header />
-      <h1 className="text-blue-600 dark:text-sky-400 border-2 p-4 rounded-xl">
-        Learn to integrate tailwind
-      </h1>
-      <div className="flex gap-4">
-        <Card
-          title="Buy Python course"
-          buttonText="join now"
-          imageurl="https://images.unsplash.com/photo-1509042239860-f550ce710b93"
-        />
-        <Card
-          title="Buy Nodejs course"
-          imageurl="https://images.pexels.com/photos/18681382/pexels-photo-18681382.jpeg"
-        />
-        <Card
-          title="Somewhere in Europe"
-          imageurl="https://images.pexels.com/photos/2519823/pexels-photo-2519823.jpeg"
-        />
-      </div>
-    </>
-  );
+	const [customer, setCustomer] = useState({
+		name: '',
+		service: '',
+		status: 'waiting',
+	});
+	const [allCustomers, setAllCustomers] = useState([]);
+	const handleAddCustomer = (e) => {
+		const {
+			target: { name, value },
+		} = e;
+		console.log('name, value ', name, value);
+
+		setCustomer((prev) => ({ ...prev, [name]: value }));
+	};
+	const handleSubmit = (currentCustomer) => {
+		setAllCustomers((prev) => {
+			return [...prev, { id: Date.now(), ...currentCustomer }];
+		});
+		console.log('hello customer in submit', customer);
+		setCustomer({
+			name: '',
+			service: '',
+			status: 'waiting',
+		});
+	};
+	const handleUpdateStatus = (id, updatedStatus) => {
+		setAllCustomers(
+			allCustomers.map((item) =>
+				item.id === id ? { ...item, status: updatedStatus } : item,
+			),
+		);
+	};
+	const handleDelete = (id) => {
+		setAllCustomers(allCustomers.filter((item) => item.id !== id));
+	};
+	return (
+		<div className='min-h-screen bg-gray-100 p-6'>
+			<ThemeProvider>
+				<div className='max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-6'>
+					<h1 className='text-3xl font-bold text-center mb-6'>
+						Queue Management System
+					</h1>
+
+					<CustomerForm
+						customer={customer}
+						handleSubmit={handleSubmit}
+						handleAddCustomer={handleAddCustomer}
+					/>
+
+					<CustomerList
+						customer={allCustomers}
+						handleDelete={handleDelete}
+						handleUpdateStatus={handleUpdateStatus}
+					/>
+				</div>
+			</ThemeProvider>
+		</div>
+	);
 }
 
 export default App;
